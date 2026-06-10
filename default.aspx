@@ -8,6 +8,12 @@ Inherits="_Default" %>
 </head>
 <body>
 
+<h1>Welcome Page of Windows Image</h1>
+
+<p>
+This application is running in a Windows Container.
+</p>
+
 <form runat="server">
 
 Name :
