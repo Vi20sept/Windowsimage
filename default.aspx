@@ -3,6 +3,9 @@ CodeFile="Default.aspx.cs"
 Inherits="_Default" %>
 
 <html>
+<head>
+    <title>Welcome Page</title>
+</head>
 <body>
 
 <form runat="server">
