@@ -67,7 +67,7 @@ jobs:
       - name: Wait for Startup
         shell: powershell
         run: |
-          Start-Sleep -Seconds 30
+          Start-Sleep -Seconds 120
 
       #Health check
       - name: Health Check
