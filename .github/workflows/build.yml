@@ -38,10 +38,56 @@ jobs:
           docker build -t ${{env.ACR_LOGIN_SERVER}}/netwin:${{ env.VERSION }} . 
           docker push ${{env.ACR_LOGIN_SERVER}}/netwin:${{ env.VERSION }}
           
-      # How to automatically update the image tag in app service   
-      - name: Update App Service
+      # How to automatically update the image tag in app service directly to production  
+      # - name: Update App Service
+      #   run: |
+      #     az webapp config container set `
+      #       --resource-group vishaltestrg01 `
+      #       --name webaptest01 `
+      #       --container-image-name terraacr01dev.azurecr.io/netwin:${{ env.VERSION }}
+
+      
+      # deploy to staging slot
+      - name: Deploy to Staging Slot
         run: |
           az webapp config container set `
             --resource-group vishaltestrg01 `
             --name webaptest01 `
+            --slot swap `
             --container-image-name terraacr01dev.azurecr.io/netwin:${{ env.VERSION }}
+      #Restart staging slot
+      - name: Restart Staging Slot
+        run: |
+          az webapp restart `
+            --resource-group vishaltestrg01 `
+            --name webaptest01 `
+            --slot swap
+
+      #wait for container start up
+      - name: Wait for Startup
+        shell: powershell
+        run: |
+          Start-Sleep -Seconds 120
+
+      #Health check
+      - name: Health Check
+        shell: powershell
+        run: |
+          $response = Invoke-WebRequest `
+            -Uri "https://webaptest01-swap-faeybheegbcahvd6.centralindia-01.azurewebsites.net/" `
+            -UseBasicParsing
+      
+          if ($response.StatusCode -ne 200)
+          {
+              Write-Error "Health Check Failed"
+              exit 1
+          }
+      #Swap to production
+      - name: Swap Slot
+        if: success()
+        run: |
+          az webapp deployment slot swap `
+            --resource-group vishaltestrg01 `
+            --name webaptest01 `
+            --slot swap `
+            --target-slot production
