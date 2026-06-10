@@ -35,13 +35,13 @@ jobs:
             
       - name: Build Docker Image
         run: |
-          docker build -t $ACR_LOGIN_SERVER/loginimage:${{ env.VERSION }} . 
-          docker push $ACR_LOGIN_SERVER/loginimage:${{ env.VERSION }}
+          docker build -t ${{env.ACR_LOGIN_SERVER}}/netwin:${{ env.VERSION }} . 
+          docker push ${{env.ACR_LOGIN_SERVER}}/netwin:${{ env.VERSION }}
           
       # How to automatically update the image tag in app service   
       - name: Update App Service
         run: |
-          az webapp config container set \
-            --resource-group vishaltestrg01 \
-            --name webaptest01 \
+          az webapp config container set `
+            --resource-group vishaltestrg01 `
+            --name webaptest01 `
             --container-image-name terraacr01dev.azurecr.io/netwin:${{ env.VERSION }}
