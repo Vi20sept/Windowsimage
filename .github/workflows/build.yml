@@ -52,7 +52,7 @@ jobs:
         run: |
           az webapp config container set `
             --resource-group vishaltestrg01 `
-            --name webaptest01 `
+            --name webaptest01-swap `
             --slot staging `
             --container-image-name terraacr01dev.azurecr.io/netwin:${{ env.VERSION }}
       #Restart staging slot
@@ -60,7 +60,7 @@ jobs:
         run: |
           az webapp restart `
             --resource-group vishaltestrg01 `
-            --name webaptest01 `
+            --name webaptest01-swap `
             --slot staging
 
       #wait for container start up
