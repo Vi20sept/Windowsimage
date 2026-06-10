@@ -4,7 +4,7 @@ Inherits="_Default" %>
 
 <html>
 <head>
-    <title>Welcome Page of Windows image</title>
+    <title>Welcome Page of Windows image graph</title>
 </head>
 <body>
 
