@@ -1,0 +1,47 @@
+name: Build and deploy an app to AKS
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+env:
+  RESOURCE_GROUP: "terrarg02dev"
+  ACR_LOGIN_SERVER: "terraacr01dev.azurecr.io"
+  VERSION: v1-${{ github.run_number }}
+
+jobs:
+  buildImage:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+      # Checks out the repository this file is in
+      - uses: actions/checkout@v4
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: |
+            {
+              "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
+              "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
+              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}",
+              "tenantId": "${{ secrets.AZURE_TENANT_ID }}"
+            }
+
+      - name: Docker Login to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login terraacr01dev.azurecr.io \
+            -u ${{ secrets.ACR_USERNAME }} --password-stdin
+      - name: Build Docker Image
+        run: |
+          docker build -t $ACR_LOGIN_SERVER/loginimage:${{ env.VERSION }} . 
+          docker push $ACR_LOGIN_SERVER/loginimage:${{ env.VERSION }}
+          
+      # How to automatically update the image tag in app service   
+      - name: Update App Service
+        run: |
+          az webapp config container set \
+            --resource-group vishaltestrg01 \
+            --name webaptest01 \
+            --container-image-name terraacr01dev.azurecr.io/netwin:${{ env.VERSION }}
